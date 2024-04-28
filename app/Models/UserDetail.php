@@ -17,11 +17,11 @@ class UserDetail extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            $model->created_at = time(); // Set creation timestamp to current epoch time
+            $model->created_at = time();
         });
 
         static::updating(function ($model) {
-            $model->updated_at = time(); // Set update timestamp to current epoch time
+            $model->updated_at = time(); 
         });
     }
 }
