@@ -80,7 +80,6 @@ class UserService
                 return response()->json(['user' => [] ,'message' => 'Password is Incorrect Please Check Password!' , 'status' =>401 ], 401 );
             }
         }
-
         public function resetPassword(string $email){
             $userDetail = UserDetail::where('email', $email)->first();
             if ($userDetail) {
@@ -91,6 +90,5 @@ class UserService
                 return response()->json(['message' => 'User Details not found', 'status' => false], 200);
             }
         }
-        
     
 }
