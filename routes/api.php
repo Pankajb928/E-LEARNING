@@ -8,6 +8,9 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::get('/health', function (Request $request) {
+    return "UP";
+});
 
 Route::post('/users', [UserController::class, 'createUser']);
 Route::post('/users/update', [UserController::class, 'updateUser']);
