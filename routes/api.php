@@ -9,10 +9,6 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::post('/dhiraj', function (Request $request) {
-   return $request;
-});
-
 Route::post('/users', [UserController::class, 'createUser']);
 Route::post('/users/update', [UserController::class, 'updateUser']);
 
