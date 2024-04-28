@@ -7,11 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class UserDetail extends Model
 {
     protected $table = 'user_details'; // Specify the table name
-    protected $fillable = ['name', 'email', 'address', 'mobile_no', 'password']; // Specify the fillable columns
+    protected $fillable = ['name', 'email', 'address', 'mobile_no', 'password']; 
 
-    public $timestamps = false; // Set timestamps to false to disable default behavior
+    public $timestamps = false; 
 
-    // Override the boot method to set the creation and update timestamps in epoch format
     protected static function boot()
     {
         parent::boot();
