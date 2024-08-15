@@ -21,8 +21,13 @@ class UserController extends Controller
 
     public function updateUser(Request $request)
     {
-        $userEmail = $request->email;
-        return $this->userService->updateUser($request->all(), $userEmail);
+        return $this->userService->updateUser($request->all());
+
+    }
+
+    public function listUser(Request $request)
+    {
+        return $this->userService->listUser();
 
     }
 
