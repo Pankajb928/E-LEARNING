@@ -11,11 +11,9 @@ Route::get('/user', function (Request $request) {
 Route::get('/health', function (Request $request) {
     return "UP";
 });
-
-Route::post('/users', [UserController::class, 'createUser']);
-Route::post('/users/update', [UserController::class, 'updateUser']);
-
-Route::prefix('/v1')->group(function () {
+Route::prefix('/v1/users')->group(function () {
     Route::post('/login', [UserController::class, 'login']);
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
+    Route::post('/registration', [UserController::class, 'createUser']);
+    Route::post('/update', [UserController::class, 'updateUser']);
 });
