@@ -14,7 +14,7 @@ class AddUserIdToUserDetailsTable extends Migration
     public function up()
     {
         Schema::table('user_details', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id')->after('id'); // Add the user_id column
+            $table->string('user_id')->after('id')->unique();
         });
     }
 

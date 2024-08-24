@@ -14,8 +14,10 @@ Route::middleware([CheckJwtToken::class])->group(function () {
     Route::post('/users/update', [UserController::class, 'updateUser']);
     Route::get('/users/list_user', [UserController::class, 'listUser']); 
     Route::post('/reset-password', [UserController::class, 'resetPassword']);
+   
 });
 
 Route::prefix('/v1')->group(function () {
     Route::post('/login', [UserController::class, 'login']);
+    
 });
