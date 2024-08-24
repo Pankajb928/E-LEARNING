@@ -27,6 +27,7 @@ class JWTService
         $payload = [
             'sub' => $userData['id'], // Subject
             'email' => $userData['email'], // User email
+            'user_id' => $userData['user_id'],
             'iat' => time(), // Issued at
             'exp' => time() + 3600, // Expiration time (1 hour)
         ];
