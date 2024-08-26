@@ -58,7 +58,10 @@ class UserService
         $userDetails->mobile_no = $data['mobile_no'];
         $userDetails->password = Hash::make(env('DEFAULT_PASS'));
         $userDetails->save();
-        
+        // unset two value
+        unset($userDetails['id']);
+        unset($userDetails['password']);
+
         // Return a JSON response
         return response()->json([
             'User' => $userDetails,
@@ -73,7 +76,7 @@ class UserService
         return Validator::make($data, [
             'user_id' =>'required|unique:user_details',
             'name' => 'required',
-            'email' => 'required|email|unique:user_details',
+            'email' => 'nullable|email|unique:user_details',
             'address' => 'required',
             'mobile_no' => 'required|unique:user_details',
         ], [
@@ -89,25 +92,43 @@ class UserService
 
     public function updateUser(array $data)
     {
+        // Validate data
         $this->updateValidateData($data);
-
-        // Find the user by Email
-        $userDetail = UserDetail::where('user_id', $data['user_id'])->first();
+        // Find the user by user_id
+        $userDetail = UserDetail::where('user_id', $data['user_id'])
+        ->first();
         if (!$userDetail) {
-            return response()->json(['message' => 'User not found'], 404);
+            return response()->json(['message' => 'User not found', 'status' => false], 404);
         }
-
-        // Loop through the data and update only the provided fields
-        foreach ($data as $key => $value) {
-            if (in_array($key, ['name', 'email', 'address', 'mobile_no'])) {
-                $userDetail->$key = $value;
+        // Update only the provided fields
+        $fieldsToUpdate = ['name', 'email', 'address', 'mobile_no'];
+        $updated = false;
+        foreach ($fieldsToUpdate as $field) {
+            if (isset($data[$field])) {
+                $userDetail->$field = $data[$field];
+                $updated = true; // Set flag if any field is updated
             }
         }
-
-        $userDetail->save();
-
-        return response()->json(['User' => $userDetail, 'message' => 'User updated successfully', 'status' => true], 200);
+    
+        if ($updated) {
+            $userDetail->updated_at = now();
+            // Save the user detail and check if it was successful
+            $saved = $userDetail->save();
+            unset($userDetail['id']);
+            unset($userDetail['password']);
+            unset($userDetail['token']);
+            if (!$saved) {
+                return response()->json(['message' => 'Failed to update user', 'status' => false], 500);
+            }
+            // Return success response
+            return response()->json(['User' => $userDetail, 'message' => 'User Details updated successfully', 'status' => true], 200);
+        }
+        // Return response if no fields were updated
+        return response()->json(['message' => 'No data to update', 'status' => false], 400);
     }
+    
+    
+    
 
     protected function updateValidateData(array $data)
     {
@@ -121,31 +142,31 @@ class UserService
     }
 
 
-    public function login(string $email, string $password)
+    public function login(string $user_id, string $password)
     {
         $userDetail = array();
-        $userDetail = UserDetail::where('email', $email)->first();
-        if (!$userDetail) {
-            return response()->json(['user' => $userDetail ? $userDetail : [] ,'message' => 'User not found Please check Email or connect with Admin' , 'status' =>404 ], 404 );
-        }
+        $userDetail = UserDetail::where('user_id', $user_id)->first();
+        // if (!$userDetail) {
+        //     return response()->json(['user' => $userDetail ? $userDetail : [] ,'message' => 'User not found Please check Email or connect with Admin' , 'status' =>404 ], 404 );
+        // }
         if (Hash::check($password, $userDetail->password)) {
-            // dd($userDetail);
             $token = $this->jwtService->tokenEncode([
                 'id' => $userDetail->id,
                 'email' => $userDetail->email,
+                'user_id' => $userDetail->user_id,
             ]);
             $userDetail->token = $token;
             $userDetail->save();
             // $token =  $this->jwtService->tokenEncode($userDetail);
-            return response()->json(['token' => $token , 'message' => 'Login Successful' , 'status' =>200], 200);
+            return response()->json(['token' => $token ,'userId' => $userDetail->user_id , 'message' => 'Login Successful' , 'status' =>200], 200);
         }
         else{
             return response()->json(['user' => [] ,'message' => 'Password is Incorrect Please Check Password!' , 'status' =>401 ], 401 );
         }
     }
 
-    public function resetPassword(string $email){
-        $userDetail = UserDetail::where('email', $email)->first();
+    public function resetPassword(string $user_id){
+        $userDetail = UserDetail::where('user_id', $user_id)->first();
         if ($userDetail) {
             $userDetail->password = Hash::make(env('DEFAULT_PASS'));
             $userDetail->save();
@@ -157,7 +178,7 @@ class UserService
 
     public function listUser()
     {
-        $userDetails = UserDetail::select('user_id', 'name', 'email', 'mobile_no', 'address')
+        $userDetails = UserDetail::select('user_id', 'name', 'address')
         ->orderBy('id', 'desc') // Apply order before executing the query
         ->get(); 
         if (!$userDetails) {

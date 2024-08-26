@@ -18,15 +18,21 @@ class CheckJwtToken
     public function handle($request, Closure $next)
     {
         try{
-            $user = $this->jwtService->tokenDecode($request->header('token'));
-            if(isset($user) && $user->email != ''){
+            if($request->header('token')){
+                $user = $this->jwtService->tokenDecode($request->header('token'));
+                if(isset($user) && $user->user_id != ''){
+                }
+                else{
+                    return response()->json(['status' => 'Unauthorised User Please Login again'], 401);
+                }
             }
             else{
                 return response()->json(['status' => 'Unauthorised User Please Login again'], 401);
             }
+            
         }
        catch (Exception $e) {
-                return response()->json(['status' => 'Unauthorized User Pleae login Again'], 401);
+                return response()->json(['status' => 'Unauthorized User Please login Again'], 401);
         }
         return $next($request);
     }
