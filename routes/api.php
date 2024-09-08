@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ClassmasterController;
+use App\Http\Controllers\ReportController;
 use App\Http\Middleware\CheckJwtToken;
 
 Route::get('/health', function (Request $request) {
@@ -29,5 +30,10 @@ Route::middleware([CheckJwtToken::class])->group(function () {
 
 Route::prefix('/v1')->group(function () {
     Route::post('/login', [UserController::class, 'login']);
-    
 });
+Route::prefix('/reports')->group(function () {
+    Route::get('/userReport', [ReportController::class, 'userReport']);
+});
+
+
+

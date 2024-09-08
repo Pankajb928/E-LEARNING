@@ -163,7 +163,7 @@ class UserService
             $userDetail->token = $token;
             $userDetail->save();
             // $token =  $this->jwtService->tokenEncode($userDetail);
-            return response()->json(['token' => $token , 'message' => 'Login Successful' , 'status' =>200], 200);
+            return response()->json(['token' => $token ,'userId' => $userDetail->user_id , 'message' => 'Login Successful' , 'status' =>200], 200);
         }
         else{
             return response()->json(['user' => [] ,'message' => 'Password is Incorrect Please Check Password!' , 'status' =>401 ], 401 );
@@ -183,7 +183,7 @@ class UserService
 
     public function listUser()
     {
-        $userDetails = UserDetail::select('user_id', 'name', 'email', 'mobile_no', 'address')
+        $userDetails = UserDetail::select('user_id', 'name', 'address')
         ->orderBy('id', 'desc') // Apply order before executing the query
         ->get(); 
         if (!$userDetails) {
