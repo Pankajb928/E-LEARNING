@@ -53,6 +53,8 @@ class UserService
         $userDetails = new UserDetail();
         $userDetails->user_id = $data['user_id'];
         $userDetails->name = $data['name'];
+        $userDetails->role_id = $data['role_id'];
+        $userDetails->classCode = $data['classCode'];
         $userDetails->email = $data['email'];
         $userDetails->address = $data['address'];
         $userDetails->mobile_no = $data['mobile_no'];
@@ -77,7 +79,9 @@ class UserService
             'user_id' =>'required|unique:user_details',
             'name' => 'required',
             'email' => 'nullable|email|unique:user_details',
+            'classCode' => 'nullable|exists:classmaster,classCode',
             'address' => 'required',
+            'role_id' => 'required|exists:rolemaster,role_id',
             'mobile_no' => 'required|unique:user_details',
         ], [
             'name.required' => 'The name field is required.',
@@ -101,7 +105,7 @@ class UserService
             return response()->json(['message' => 'User not found', 'status' => false], 404);
         }
         // Update only the provided fields
-        $fieldsToUpdate = ['name', 'email', 'address', 'mobile_no'];
+        $fieldsToUpdate = ['name', 'email', 'address', 'mobile_no','role_id','classCode'];
         $updated = false;
         foreach ($fieldsToUpdate as $field) {
             if (isset($data[$field])) {
@@ -154,6 +158,7 @@ class UserService
                 'id' => $userDetail->id,
                 'email' => $userDetail->email,
                 'user_id' => $userDetail->user_id,
+                'role_id' => $userDetail->role_id,
             ]);
             $userDetail->token = $token;
             $userDetail->save();
@@ -187,6 +192,39 @@ class UserService
     
         return response()->json(['User' => $userDetails, 'message' => 'User details fetched successfully', 'status' => true], 200);
     }
+
+    public function deleteUser(string $user_id , string $status)
+    {
+        $validStatuses = ['Y', 'N', 'D'];
+        if (!in_array($status, $validStatuses)) {
+            return response()->json([
+                'message' => 'Please provide correct status value',
+            ], 400);
+        }
+        $userDetail = UserDetail::where('user_id', $user_id)
+        ->first();
+        if (!$userDetail) {
+            return response()->json(['message' => 'User not found Please Create First', 'status' => false], 404);
+        }
+
+        $updatedRows = UserDetail::where('user_id', $user_id)
+        ->update(['status' => $status]); 
+
+        $statusMessages = [
+            'Y' => 'activate',
+            'N' => 'deactivate',
+            'D' => 'deleted'
+        ];
+        
+        // Get the status message based on the provided status
+        $statusMessage = isset($statusMessages[$status]) ? $statusMessages[$status] : 'unknown';
     
+        // Return the response with the dynamic message
+        return response()->json([
+            'message' => "User  $statusMessage successfully",
+            'updated_count' => $updatedRows,
+            'status' => true
+        ]);
+    }
     
 }

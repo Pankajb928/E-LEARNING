@@ -61,4 +61,11 @@ class UserController extends Controller
         $user_id = $request->user_id;
         return $this->userService->resetPassword($user_id);
     }
+
+    public function deleteUser(Request $request)
+    {
+        $user_id = $request->user_id;
+        $status = $request->status;
+        return $this->userService->deleteUser($user_id, $status);
+    }
 }
