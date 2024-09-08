@@ -20,7 +20,8 @@ class CheckJwtToken
         try{
             if($request->header('token')){
                 $user = $this->jwtService->tokenDecode($request->header('token'));
-                if(isset($user) && $user->user_id != ''){
+                
+                if(isset($user) && $user->user_id != '' && $user->role_id == 1 ){
                 }
                 else{
                     return response()->json(['status' => 'Unauthorised User Please Login again'], 401);
